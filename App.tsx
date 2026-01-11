@@ -6,8 +6,9 @@ import Countdown from './components/Countdown';
 import Location from './components/Location';
 import GiftList from './components/GiftList';
 import RSVPForm from './components/RSVPForm';
+import GuestGallery from './components/GuestGallery';
 import LoadingScreen from './components/LoadingScreen';
-import { Gift, MapPin, Calendar, CheckCircle, Volume2, VolumeX } from 'lucide-react';
+import { Gift, MapPin, Calendar, CheckCircle, Volume2, VolumeX, Camera } from 'lucide-react';
 
 const App: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -146,6 +147,10 @@ const App: React.FC = () => {
             <RSVPForm />
           </div>
 
+          <div id="gallery">
+            <GuestGallery />
+          </div>
+
           <div id="location">
             <Location />
           </div>
@@ -157,27 +162,34 @@ const App: React.FC = () => {
       </main>
 
       {/* Bottom Navigation (Mobile) */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-slate-100 px-6 py-4 flex justify-around items-center z-50 md:hidden rounded-t-3xl shadow-[0_-10px_25px_rgba(0,0,0,0.05)]">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-slate-100 px-4 py-3 flex justify-around items-center z-50 md:hidden rounded-t-3xl shadow-[0_-10px_25px_rgba(0,0,0,0.05)]">
         <button 
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="flex flex-col items-center gap-1 text-slate-400 hover:text-orange-600 transition-all"
         >
-          <Calendar size={22} />
-          <span className="text-[10px] font-bold uppercase tracking-tighter">Início</span>
+          <Calendar size={20} />
+          <span className="text-[9px] font-bold uppercase tracking-tighter">Início</span>
         </button>
         <button 
           onClick={() => document.getElementById('rsvp')?.scrollIntoView({ behavior: 'smooth' })}
           className="flex flex-col items-center gap-1 text-slate-400 hover:text-orange-600 transition-all"
         >
-          <CheckCircle size={22} />
-          <span className="text-[10px] font-bold uppercase tracking-tighter">RSVP</span>
+          <CheckCircle size={20} />
+          <span className="text-[9px] font-bold uppercase tracking-tighter">RSVP</span>
+        </button>
+        <button 
+          onClick={() => document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth' })}
+          className="flex flex-col items-center gap-1 text-slate-400 hover:text-orange-600 transition-all"
+        >
+          <Camera size={20} />
+          <span className="text-[9px] font-bold uppercase tracking-tighter">Galeria</span>
         </button>
         <button 
           onClick={() => document.getElementById('gifts')?.scrollIntoView({ behavior: 'smooth' })}
           className="flex flex-col items-center gap-1 text-slate-400 hover:text-orange-600 transition-all"
         >
-          <Gift size={22} />
-          <span className="text-[10px] font-bold uppercase tracking-tighter">Presentes</span>
+          <Gift size={20} />
+          <span className="text-[9px] font-bold uppercase tracking-tighter">Presentes</span>
         </button>
       </nav>
 
