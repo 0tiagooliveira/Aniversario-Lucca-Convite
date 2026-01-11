@@ -8,6 +8,7 @@ import GiftList from './components/GiftList';
 import RSVPForm from './components/RSVPForm';
 import GuestAssistant from './components/GuestAssistant';
 import { Gift, MapPin, Calendar, CheckCircle, Volume2, VolumeX } from 'lucide-react';
+import { analytics } from './firebase';
 
 const App: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
