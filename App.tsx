@@ -7,6 +7,7 @@ import Location from './components/Location';
 import GiftList from './components/GiftList';
 import RSVPForm from './components/RSVPForm';
 import GuestAssistant from './components/GuestAssistant';
+import LoadingScreen from './components/LoadingScreen';
 import { Gift, MapPin, Calendar, CheckCircle, Volume2, VolumeX } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -14,8 +15,20 @@ const App: React.FC = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showPlayButton, setShowPlayButton] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Simular carregamento inicial
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (isLoading) return; // Não tocar música enquanto carrega
+    
     // Tentar reproduzir a música imediatamente
     const playAudio = async () => {
       if (audioRef.current && !isPlaying) {
@@ -35,7 +48,7 @@ const App: React.FC = () => {
     const timer = setTimeout(playAudio, 100);
 
     return () => clearTimeout(timer);
-  }, [isPlaying]);
+  }, [isPlaying, isLoading]);
 
   const handlePlayClick = async () => {
     if (audioRef.current) {
@@ -55,6 +68,10 @@ const App: React.FC = () => {
       setIsMuted(!isMuted);
     }
   };
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <div className="min-h-screen pb-24 bg-[#fdfbf7] text-slate-800">

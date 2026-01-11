@@ -12,11 +12,32 @@ export const PARTY_DATA: PartyDetails = {
     mapUrl: "https://www.google.com/maps/search/?api=1&query=Rua+Marechal+Otávio+Saldanha+Mazza+6740+Curitiba"
   },
   giftList: [
-    { id: "1", name: "Roupas (Tamanho 1 a 2 anos)", link: "#" },
-    { id: "2", name: "Brinquedos Pedagógicos", link: "#" },
-    { id: "3", name: "Fraldas G / XG", link: "#" },
-    { id: "4", name: "Livros de Banho / Texturas", link: "#" },
-    { id: "5", name: "Vale Presente", link: "#" }
+    { id: "1", name: "Roupas Tamanho 1-2 anos", link: "#", category: "Vestuário" },
+    { id: "2", name: "Sapatos Número 22-24", link: "#", category: "Vestuário" },
+    { id: "3", name: "Fraldas G / XG", link: "#", category: "Necessidades" },
+    { id: "4", name: "Toalhas de Banho Infantil", link: "#", category: "Necessidades" },
+    { id: "5", name: "Livros de Banho", link: "#", category: "Educativo" },
+    { id: "6", name: "Livros de Texturas", link: "#", category: "Educativo" },
+    { id: "7", name: "Blocos de Montar Grandes", link: "#", category: "Brinquedos" },
+    { id: "8", name: "Brinquedos de Encaixe", link: "#", category: "Brinquedos" },
+    { id: "9", name: "Instrumentos Musicais Infantis", link: "#", category: "Brinquedos" },
+    { id: "10", name: "Pelúcias Animais Safari", link: "#", category: "Brinquedos" },
+    { id: "11", name: "Quebra-cabeça Baby", link: "#", category: "Educativo" },
+    { id: "12", name: "Massinha de Modelar Atóxica", link: "#", category: "Educativo" },
+    { id: "13", name: "Giz de Cera Jumbo", link: "#", category: "Educativo" },
+    { id: "14", name: "Carrinho de Empurrar", link: "#", category: "Brinquedos" },
+    { id: "15", name: "Bola Grande e Macia", link: "#", category: "Brinquedos" },
+    { id: "16", name: "Conjuntos de Prato e Talher", link: "#", category: "Necessidades" },
+    { id: "17", name: "Copos com Canudo", link: "#", category: "Necessidades" },
+    { id: "18", name: "Cadeirinha de Alimentação Portátil", link: "#", category: "Necessidades" },
+    { id: "19", name: "Mochila Infantil", link: "#", category: "Vestuário" },
+    { id: "20", name: "Roupão de Banho", link: "#", category: "Vestuário" },
+    { id: "21", name: "Pijamas Divertidos", link: "#", category: "Vestuário" },
+    { id: "22", name: "Meias Antiderrapantes", link: "#", category: "Vestuário" },
+    { id: "23", name: "Brinquedos de Puxar", link: "#", category: "Brinquedos" },
+    { id: "24", name: "Kit Praia/Piscina", link: "#", category: "Brinquedos" },
+    { id: "25", name: "Vale Presente Livraria", link: "#", category: "Vales" },
+    { id: "26", name: "Vale Presente Loja de Brinquedos", link: "#", category: "Vales" }
   ]
 };
 

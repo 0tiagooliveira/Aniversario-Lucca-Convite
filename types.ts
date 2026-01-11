@@ -17,6 +17,8 @@ export interface GiftItem {
   name: string;
   priceRange?: string;
   link?: string;
+  category?: string;
+  reservedBy?: string;
 }
 
 export interface RSVPData {

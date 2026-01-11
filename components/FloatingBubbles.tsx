@@ -114,50 +114,58 @@ const FloatingBubbles: React.FC<FloatingBubblesProps> = ({ containerWidth, conta
     setBubbles(initialBubbles);
   }, [containerWidth, containerHeight, isMobile, numColumns]);
 
-  // Sistema de balões de fala
+  // Sistema de balões de fala - desabilitado inicialmente para performance
   useEffect(() => {
-    const showRandomSpeech = () => {
-      setBubbles(prev => {
-        const confirmedBubbles = prev.filter(b => b.confirmed);
-        if (confirmedBubbles.length === 0) return prev;
+    // Aguardar 3 segundos antes de ativar o sistema de balões de fala
+    const initialDelay = setTimeout(() => {
+      const showRandomSpeech = () => {
+        setBubbles(prev => {
+          const confirmedBubbles = prev.filter(b => b.confirmed);
+          if (confirmedBubbles.length === 0) return prev;
 
-        // Contar quantos balões já estão visíveis
-        const visibleSpeechCount = prev.filter(b => b.showSpeech).length;
-        
-        // Se já tem 3 ou mais balões visíveis, não mostrar novo
-        if (visibleSpeechCount >= 3) return prev;
+          // Contar quantos balões já estão visíveis
+          const visibleSpeechCount = prev.filter(b => b.showSpeech).length;
+          
+          // Se já tem 3 ou mais balões visíveis, não mostrar novo
+          if (visibleSpeechCount >= 3) return prev;
 
-        // Escolher uma bolinha confirmada aleatória que NÃO esteja falando
-        const availableBubbles = confirmedBubbles.filter(b => !b.showSpeech);
-        if (availableBubbles.length === 0) return prev;
-        
-        const randomBubble = availableBubbles[Math.floor(Math.random() * availableBubbles.length)];
-        
-        return prev.map(b => {
-          if (b.id === randomBubble.id) {
-            return {
-              ...b,
-              showSpeech: true,
-              speechMessage: confirmedPhrases[Math.floor(Math.random() * confirmedPhrases.length)]
-            };
-          }
-          return b;
+          // Escolher uma bolinha confirmada aleatória que NÃO esteja falando
+          const availableBubbles = confirmedBubbles.filter(b => !b.showSpeech);
+          if (availableBubbles.length === 0) return prev;
+          
+          const randomBubble = availableBubbles[Math.floor(Math.random() * availableBubbles.length)];
+          
+          return prev.map(b => {
+            if (b.id === randomBubble.id) {
+              return {
+                ...b,
+                showSpeech: true,
+                speechMessage: confirmedPhrases[Math.floor(Math.random() * confirmedPhrases.length)]
+              };
+            }
+            return b;
+          });
         });
-      });
 
-      // Esconder após 8 segundos (era 5)
-      setTimeout(() => {
-        setBubbles(prev => prev.map(b => ({ ...b, showSpeech: false })));
-      }, 8000);
-    };
+        // Esconder após 8 segundos
+        setTimeout(() => {
+          setBubbles(prev => prev.map(b => ({ ...b, showSpeech: false })));
+        }, 8000);
+      };
 
-    // Mostrar balão a cada 20 segundos (era 15)
-    const interval = setInterval(showRandomSpeech, 20000);
-    
-    // Mostrar o primeiro após 3 segundos
-    setTimeout(showRandomSpeech, 3000);
+      // Mostrar balão a cada 20 segundos
+      const interval = setInterval(showRandomSpeech, 20000);
+      
+      // Mostrar o primeiro após 5 segundos
+      const firstTimeout = setTimeout(showRandomSpeech, 5000);
 
-    return () => clearInterval(interval);
+      return () => {
+        clearInterval(interval);
+        clearTimeout(firstTimeout);
+      };
+    }, 3000);
+
+    return () => clearTimeout(initialDelay);
   }, []);
 
   useEffect(() => {
@@ -410,6 +418,7 @@ const FloatingBubbles: React.FC<FloatingBubblesProps> = ({ containerWidth, conta
                   alt={bubble.name} 
                   className="w-full h-full object-cover"
                   draggable={false}
+                  loading="lazy"
                 />
               ) : (
                 <span className="text-2xl font-bold text-orange-500">
