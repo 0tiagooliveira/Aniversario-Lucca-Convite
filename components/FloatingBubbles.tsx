@@ -59,7 +59,7 @@ const greetingPhrases = [
 
 // Convidados que já confirmaram (adicione os nomes aqui)
 const confirmedGuests = [
-  'Marisa', 'Cleide', 'Wesley', 'Teté', 'Rose', 'Lucas', 'Antony', 'Caciane', 'Papai', 'Mamãe', 'Geovana', 'Sabrina', 'Bruno', 'Luiza', 'Terezinha', 'Silvana', 'Anselmo', 'Andréia', 'Alexandre'
+  'Marisa', 'Cleide', 'Wesley', 'Teté', 'Rose', 'Lucas', 'Antony', 'Caciane', 'Papai', 'Mamãe', 'Geovana', 'Sabrina', 'Bruno', 'Luiza', 'Terezinha', 'Silvana', 'Anselmo', 'Andréia', 'Alexandre', 'Arthur', 'Raiane'
 ];
 
 const FloatingBubbles: React.FC<FloatingBubblesProps> = ({ containerWidth, containerHeight }) => {
@@ -73,32 +73,38 @@ const FloatingBubbles: React.FC<FloatingBubblesProps> = ({ containerWidth, conta
     // Convidados com fotos primeiro (aparecem no topo)
     'Marisa', 'Cleide', 'Wesley', 'Teté', 'Rose', 'Lucas', 'Antony', 'Caciane', 
     'Papai', 'Mamãe', 'Geovana', 'Sabrina', 'Bruno', 'Luiza', 'Terezinha', 'Silvana',
-    'Anselmo', 'Andréia', 'Alexandre',
-    // Demais convidados
-    'Arthur', 'Raiane', 'Edina', 'Elcio'
+    'Anselmo', 'Andréia', 'Alexandre', 'Arthur', 'Raiane'
   ];
 
-  const radius = 40;
+  // Raio e configurações responsivas - muito menor no mobile
+  const isMobile = containerWidth < 768;
+  const radius = isMobile ? 22 : 40;
+  const numColumns = isMobile ? 7 : 5; // Mais colunas no mobile para distribuir melhor
 
   useEffect(() => {
     // Inicializar bolinhas com padrões independentes
     const initialBubbles: Bubble[] = guests.map((name, index) => {
-      const cols = 5; // 5 colunas para acomodar 20 convidados (4 linhas)
+      const cols = numColumns;
       const row = Math.floor(index / cols);
       const col = index % cols;
       const isConfirmed = confirmedGuests.includes(name);
       
+      // Espaçamento mais inteligente no mobile
+      const spacing = isMobile ? 
+        { x: containerWidth / (cols + 1), y: 60 } : 
+        { x: containerWidth / (cols + 1), y: 120 };
+      
       return {
         id: `bubble-${index}`,
         name,
-        x: (containerWidth / (cols + 1)) * (col + 1),
-        y: 70 + row * 120,
-        vx: (Math.random() - 0.5) * 1.5,
-        vy: (Math.random() - 0.5) * 1.5,
+        x: spacing.x * (col + 1),
+        y: isMobile ? 40 + row * spacing.y : 70 + row * spacing.y,
+        vx: (Math.random() - 0.5) * (isMobile ? 0.8 : 1.5), // Movimento mais suave no mobile
+        vy: (Math.random() - 0.5) * (isMobile ? 0.8 : 1.5),
         photo: GUEST_PHOTOS[name],
         floatAngle: Math.random() * Math.PI * 2,
-        floatSpeed: 0.5 + Math.random() * 1,
-        floatRadius: 0.3 + Math.random() * 0.5,
+        floatSpeed: isMobile ? 0.3 + Math.random() * 0.5 : 0.5 + Math.random() * 1, // Mais lento no mobile
+        floatRadius: isMobile ? 0.2 + Math.random() * 0.3 : 0.3 + Math.random() * 0.5, // Menos oscilação
         confirmed: isConfirmed,
         showSpeech: false,
         speechMessage: isConfirmed ? confirmedPhrases[Math.floor(Math.random() * confirmedPhrases.length)] : ''
@@ -106,7 +112,7 @@ const FloatingBubbles: React.FC<FloatingBubblesProps> = ({ containerWidth, conta
     });
 
     setBubbles(initialBubbles);
-  }, [containerWidth, containerHeight]);
+  }, [containerWidth, containerHeight, isMobile, numColumns]);
 
   // Sistema de balões de fala
   useEffect(() => {
@@ -347,7 +353,7 @@ const FloatingBubbles: React.FC<FloatingBubblesProps> = ({ containerWidth, conta
   return (
     <>
       <div 
-        className="absolute inset-0 z-20 pointer-events-auto"
+        className="absolute inset-0 z-10 pointer-events-auto"
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
@@ -355,7 +361,7 @@ const FloatingBubbles: React.FC<FloatingBubblesProps> = ({ containerWidth, conta
         {bubbles.map(bubble => (
           <div
             key={bubble.id}
-            className={`absolute cursor-pointer transition-transform hover:scale-110 ${bubble.showSpeech ? 'z-[60]' : 'z-10'}`}
+            className={`absolute cursor-pointer transition-transform hover:scale-110 ${bubble.showSpeech ? 'z-[25]' : 'z-[5]'}`}
             style={{
               left: `${bubble.x - radius}px`,
               top: `${bubble.y - radius}px`,
@@ -365,26 +371,28 @@ const FloatingBubbles: React.FC<FloatingBubblesProps> = ({ containerWidth, conta
             onMouseDown={(e) => handleMouseDown(e, bubble)}
             onClick={() => handleClick(bubble)}
           >
-            {/* Balão de fala */}
+            {/* Balão de fala - menor e mais discreto no mobile */}
             {bubble.showSpeech && bubble.speechMessage && (
-              <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-52 animate-in fade-in slide-in-from-bottom-2 z-[100]">
-                <div className="relative bg-white rounded-2xl shadow-2xl p-3 border-2 border-orange-400">
-                  {/* Nome de quem está falando */}
-                  <div className="flex items-center gap-2 mb-2 pb-2 border-b border-orange-200">
-                    <div className="w-6 h-6 rounded-full overflow-hidden ring-2 ring-orange-300 flex-shrink-0">
-                      {bubble.photo ? (
-                        <img src={bubble.photo} alt={bubble.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full bg-orange-100 flex items-center justify-center text-orange-600 text-xs font-bold">
-                          {bubble.name.charAt(0)}
-                        </div>
-                      )}
+              <div className={`absolute left-1/2 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-2 z-[100] ${isMobile ? '-top-16 w-36' : '-top-24 w-52'}`}>
+                <div className={`relative bg-white rounded-2xl shadow-2xl border-2 border-orange-400 ${isMobile ? 'p-2' : 'p-3'}`}>
+                  {/* Nome de quem está falando - esconder no mobile */}
+                  {!isMobile && (
+                    <div className="flex items-center gap-2 mb-2 pb-2 border-b border-orange-200">
+                      <div className="w-6 h-6 rounded-full overflow-hidden ring-2 ring-orange-300 flex-shrink-0">
+                        {bubble.photo ? (
+                          <img src={bubble.photo} alt={bubble.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-orange-100 flex items-center justify-center text-orange-600 text-xs font-bold">
+                            {bubble.name.charAt(0)}
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-xs font-bold text-orange-600">{bubble.name}</span>
                     </div>
-                    <span className="text-xs font-bold text-orange-600">{bubble.name}</span>
-                  </div>
+                  )}
                   
-                  {/* Mensagem */}
-                  <p className="text-xs font-semibold text-slate-800 text-center leading-tight">
+                  {/* Mensagem - texto menor no mobile */}
+                  <p className={`font-semibold text-slate-800 text-center leading-tight ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
                     {bubble.speechMessage}
                   </p>
                   
@@ -410,12 +418,14 @@ const FloatingBubbles: React.FC<FloatingBubblesProps> = ({ containerWidth, conta
               )}
             </div>
             
-            {/* Nome embaixo da bolinha */}
-            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
-              <span className="text-[9px] font-semibold text-slate-600 bg-white/80 px-1.5 py-0.5 rounded-full shadow-sm">
-                {bubble.name}
-              </span>
-            </div>
+            {/* Nome embaixo da bolinha - esconder no mobile para não poluir */}
+            {!isMobile && (
+              <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                <span className="text-[9px] font-semibold text-slate-600 bg-white/80 px-1.5 py-0.5 rounded-full shadow-sm">
+                  {bubble.name}
+                </span>
+              </div>
+            )}
           </div>
         ))}
       </div>

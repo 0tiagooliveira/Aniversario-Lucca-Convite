@@ -46,7 +46,9 @@ export const GUEST_PHOTOS: Record<string, string> = {
   "Silvana": "/Silvana.png",
   "Anselmo": "/Anselmo e Andréia.png",
   "Andréia": "/Anselmo e Andréia.png",
-  "Alexandre": "/Alexandre.png"
+  "Alexandre": "/Alexandre.png",
+  "Arthur": "/Arthur.png",
+  "Raiane": "/Raiane.png"
 };
 
 export const SYSTEM_PROMPT = `Você é o Guia do Safari do Lucca! 🦒🦁🦓

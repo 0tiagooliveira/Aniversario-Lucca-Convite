@@ -41,36 +41,75 @@ const Hero: React.FC = () => {
         />
       )}
 
-      <div className="text-center z-30 px-4 flex flex-col items-center pointer-events-none relative">
+      <div className="text-center z-30 px-4 flex flex-col items-center pointer-events-none relative pt-8 md:pt-12">
         {/* Photo Container */}
-        <div className="relative mb-8 group">
+        <div className="relative mb-8 md:mb-10 group pointer-events-auto">
           {/* Foto do Lucca no centro */}
           <div className="absolute -inset-4 bg-orange-400/30 rounded-full blur-xl animate-pulse"></div>
-          <div className="relative w-48 h-48 md:w-56 md:h-56 rounded-full border-8 border-white shadow-2xl overflow-hidden bg-slate-200">
+          <button 
+            onClick={() => {
+              // Abrir foto em modal ou ampliar
+              const modal = document.createElement('div');
+              modal.className = 'fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center animate-in fade-in';
+              modal.onclick = () => modal.remove();
+              modal.innerHTML = `
+                <div class="relative max-w-2xl max-h-[80vh]">
+                  <button class="absolute -top-4 -right-4 w-12 h-12 bg-white rounded-full shadow-xl flex items-center justify-center text-slate-600 hover:bg-orange-500 hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                  <img src="/Lucca.png" alt="Lucca" class="w-full h-full object-contain rounded-3xl shadow-2xl max-h-[70vh]" />
+                </div>
+              `;
+              document.body.appendChild(modal);
+            }}
+            className="relative w-48 h-48 md:w-56 md:h-56 rounded-full border-8 border-white shadow-2xl overflow-hidden bg-slate-200 cursor-pointer transition-transform hover:scale-105"
+          >
             {/* Foto do Lucca */}
             <img 
               src="/Lucca.png" 
               alt="Lucca" 
               className="w-full h-full object-cover"
             />
-          </div>
+          </button>
           {/* Badge 1 ano fora do círculo, na parte inferior */}
-          <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 bg-orange-500 text-white px-3 py-2 rounded-full flex items-center gap-1 font-bold shadow-lg">
+          <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 bg-orange-500 text-white px-3 py-2 rounded-full flex items-center gap-1 font-bold shadow-lg pointer-events-none">
             <span className="text-xl">🎂</span>
             <span className="text-sm whitespace-nowrap">1 ano</span>
           </div>
         </div>
 
-        <div className="inline-block mb-4 px-8 py-2 bg-white/20 backdrop-blur-md text-white border border-white/30 rounded-full font-bold tracking-[0.2em] text-xs uppercase shadow-xl">
-          Exploração de Aniversário
+        <div className="inline-block mb-6 md:mb-8 px-6 py-2 bg-white/20 backdrop-blur-md text-white border border-white/30 rounded-full font-bold tracking-wider text-xs uppercase shadow-xl">
+          🦁 Convite Especial 🦁
         </div>
-        <h1 className="text-5xl md:text-7xl font-display mb-2 drop-shadow-2xl">Safari do {PARTY_DATA.celebrant}</h1>
-        <p className="text-xl md:text-2xl font-medium opacity-90 mb-6 italic">Meu Primeiro Aninho de Aventuras!</p>
+        
+        {/* Título com fundo pílula */}
+        <div className="mb-5 md:mb-6 px-8 py-4 md:py-5 bg-white/90 backdrop-blur-sm rounded-full shadow-2xl">
+          <h1 className="text-4xl md:text-6xl font-display leading-tight text-[#5a7a4a]">
+            Meu Primeiro<br className="md:hidden" /> Aniversário
+          </h1>
+        </div>
+        
+        {/* Subtítulo com fundo pílula */}
+        <div className="mb-4 md:mb-5 px-6 py-3 md:py-3.5 bg-orange-500/95 backdrop-blur-sm rounded-full shadow-xl">
+          <p className="text-base md:text-lg font-semibold text-white">
+            Você está convidado para celebrar
+          </p>
+        </div>
+        
+        {/* Nome do Safari com fundo pílula */}
+        <div className="mb-8 md:mb-10 px-8 py-3 md:py-4 bg-white/90 backdrop-blur-sm rounded-full shadow-2xl">
+          <p className="text-xl md:text-3xl font-bold text-orange-600">
+            o Safari do {PARTY_DATA.celebrant}! 🎉
+          </p>
+        </div>
+        
         <div className="w-32 h-1.5 bg-orange-400 mx-auto rounded-full shadow-inner"></div>
       </div>
 
-      {/* Decorative Jungle Leaves Bottom */}
-      <div className="absolute bottom-0 left-0 w-full flex justify-between px-4 pointer-events-none opacity-40">
+      {/* Decorative Jungle Leaves Bottom - ESCONDER NO MOBILE */}
+      <div className="hidden md:flex absolute bottom-0 left-0 w-full justify-between px-4 pointer-events-none opacity-40">
         <span className="text-8xl -mb-6">🌿</span>
         <span className="text-8xl -mb-6">🍃</span>
         <span className="text-8xl -mb-6">🌿</span>

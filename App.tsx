@@ -8,7 +8,6 @@ import GiftList from './components/GiftList';
 import RSVPForm from './components/RSVPForm';
 import GuestAssistant from './components/GuestAssistant';
 import { Gift, MapPin, Calendar, CheckCircle, Volume2, VolumeX } from 'lucide-react';
-import { analytics } from './firebase';
 
 const App: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -93,7 +92,7 @@ const App: React.FC = () => {
       {/* Header / Hero */}
       <Hero />
 
-      <main className="max-w-4xl mx-auto px-4 -mt-16 relative z-10">
+      <main className="max-w-4xl mx-auto px-4 -mt-16 relative z-30">
         <div className="bg-white rounded-[2rem] shadow-2xl overflow-hidden mb-8 border border-orange-50">
           {/* Main Info Card */}
           <div className="p-8 md:p-10 space-y-10">
