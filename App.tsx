@@ -6,7 +6,6 @@ import Countdown from './components/Countdown';
 import Location from './components/Location';
 import GiftList from './components/GiftList';
 import RSVPForm from './components/RSVPForm';
-import GuestAssistant from './components/GuestAssistant';
 import LoadingScreen from './components/LoadingScreen';
 import { Gift, MapPin, Calendar, CheckCircle, Volume2, VolumeX } from 'lucide-react';
 
@@ -156,9 +155,6 @@ const App: React.FC = () => {
           </div>
         </section>
       </main>
-
-      {/* Floating Chat Button/Widget */}
-      <GuestAssistant />
 
       {/* Bottom Navigation (Mobile) */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-slate-100 px-6 py-4 flex justify-around items-center z-50 md:hidden rounded-t-3xl shadow-[0_-10px_25px_rgba(0,0,0,0.05)]">

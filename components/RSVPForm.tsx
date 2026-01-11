@@ -1,13 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { GUEST_LIST, GUEST_PHOTOS } from '../constants';
-import { CheckCircle2, UserCheck, Users, Search } from 'lucide-react';
+import { CheckCircle2, UserCheck, Users, Search, Plus, X } from 'lucide-react';
 
 const RSVPForm: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGuest, setSelectedGuest] = useState<string | null>(null);
   const [isConfirmed, setIsConfirmed] = useState(false);
-  const [guestCount, setGuestCount] = useState(1);
+  const [companions, setCompanions] = useState<string[]>([]);
   const [step, setStep] = useState<'search' | 'confirm' | 'success'>('search');
 
   const filteredGuests = GUEST_LIST.filter(g => 
@@ -16,6 +16,7 @@ const RSVPForm: React.FC = () => {
 
   const handleSelect = (name: string) => {
     setSelectedGuest(name);
+    setCompanions([]);
     setStep('confirm');
   };
 
@@ -25,6 +26,7 @@ const RSVPForm: React.FC = () => {
       const name = e?.detail ?? e; // compatibilidade
       if (typeof name === 'string') {
         setSelectedGuest(name);
+        setCompanions([]);
         setStep('confirm');
         setSearchTerm('');
       }
@@ -34,11 +36,32 @@ const RSVPForm: React.FC = () => {
     return () => window.removeEventListener('selectGuest', handler as EventListener);
   }, []);
 
+  const addCompanion = () => {
+    if (companions.length < 4) {
+      setCompanions([...companions, '']);
+    }
+  };
+
+  const removeCompanion = (index: number) => {
+    setCompanions(companions.filter((_, i) => i !== index));
+  };
+
+  const updateCompanion = (index: number, value: string) => {
+    const updated = [...companions];
+    updated[index] = value;
+    setCompanions(updated);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    const totalPeople = 1 + companions.filter(c => c.trim()).length;
+    const companionsList = companions.filter(c => c.trim()).length > 0 
+      ? '\n\nAcompanhantes:\n' + companions.filter(c => c.trim()).map((c, i) => `${i + 1}. ${c}`).join('\n')
+      : '';
+    
     // Criar mensagem personalizada para WhatsApp
-    const message = `Olá! Sou *${selectedGuest}* e estou confirmando minha presença no Safari do Lucca! 🦁🎉\n\nNúmero de pessoas: ${guestCount}\n\nMal posso esperar para celebrar esse dia especial! 🎂`;
+    const message = `Olá! Sou *${selectedGuest}* e estou confirmando minha presença no Safari do Lucca! 🦁🎉\n\nTotal de pessoas: ${totalPeople}${companionsList}\n\nMal posso esperar para celebrar esse dia especial! 🎂`;
     
     // Codificar a mensagem para URL
     const encodedMessage = encodeURIComponent(message);
@@ -106,35 +129,77 @@ const RSVPForm: React.FC = () => {
           </div>
         )}
 
-        {step === 'confirm' && (
+        {step === 'confirm' && selectedGuest && (
           <form onSubmit={handleSubmit} className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-            <div className="flex items-center gap-4 p-4 bg-orange-50 rounded-2xl">
-              <div className="bg-orange-500 text-white p-2 rounded-full">
-                <Users size={20} />
-              </div>
-              <div>
-                <p className="text-xs text-orange-700 font-bold uppercase tracking-wider">Convidado Selecionado</p>
-                <p className="text-lg font-bold text-slate-800">{selectedGuest}</p>
+            {/* Convidado com foto */}
+            <div className="flex items-center gap-4 p-5 bg-gradient-to-r from-orange-50 to-orange-100/50 rounded-2xl border-2 border-orange-200">
+              {GUEST_PHOTOS[selectedGuest] ? (
+                <img 
+                  src={GUEST_PHOTOS[selectedGuest]} 
+                  alt={selectedGuest}
+                  className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-orange-500 text-white flex items-center justify-center text-3xl font-bold border-4 border-white shadow-lg">
+                  {selectedGuest.charAt(0)}
+                </div>
+              )}
+              <div className="flex-1">
+                <p className="text-xs text-orange-700 font-bold uppercase tracking-wider mb-1">Convidado Principal</p>
+                <p className="text-2xl font-bold text-slate-800">{selectedGuest}</p>
               </div>
             </div>
 
-            <div className="space-y-3">
-              <label className="block font-bold text-slate-700">Quantas pessoas virão com você?</label>
-              <div className="flex gap-4">
-                {[1, 2, 3, 4, 5].map(num => (
+            {/* Acompanhantes */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <label className="block font-bold text-slate-700">Quem vai com você?</label>
+                {companions.length < 4 && (
                   <button
-                    key={num}
                     type="button"
-                    onClick={() => setGuestCount(num)}
-                    className={`flex-1 py-3 rounded-xl font-bold transition-all ${
-                      guestCount === num 
-                        ? 'bg-orange-500 text-white shadow-md' 
-                        : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
-                    }`}
+                    onClick={addCompanion}
+                    className="flex items-center gap-2 px-4 py-2 bg-orange-100 hover:bg-orange-200 text-orange-700 font-semibold rounded-full transition-all text-sm"
                   >
-                    {num}
+                    <Plus size={16} />
+                    Adicionar
                   </button>
-                ))}
+                )}
+              </div>
+
+              {companions.length === 0 && (
+                <p className="text-sm text-slate-500 italic text-center py-4 bg-slate-50 rounded-xl">
+                  Clique em "Adicionar" para incluir acompanhantes
+                </p>
+              )}
+
+              {companions.map((companion, index) => (
+                <div key={index} className="flex gap-3 items-center animate-in fade-in slide-in-from-bottom-2">
+                  <div className="flex-1 relative">
+                    <input
+                      type="text"
+                      value={companion}
+                      onChange={(e) => updateCompanion(index, e.target.value)}
+                      placeholder={`Nome do acompanhante ${index + 1}`}
+                      className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl focus:border-orange-500 focus:outline-none transition-all"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeCompanion(index)}
+                    className="p-3 bg-red-100 hover:bg-red-200 text-red-600 rounded-xl transition-all"
+                    title="Remover"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              ))}
+
+              {/* Total de pessoas */}
+              <div className="mt-4 p-4 bg-green-50 border-2 border-green-200 rounded-xl text-center">
+                <p className="text-sm text-green-700 font-semibold mb-1">Total de Pessoas</p>
+                <p className="text-3xl font-bold text-green-600">
+                  {1 + companions.filter(c => c.trim()).length}
+                </p>
               </div>
             </div>
 
