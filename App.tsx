@@ -9,32 +9,12 @@ import LoadingScreen from './components/LoadingScreen';
 import EntryGate, { GuestStatus } from './components/EntryGate';
 import AdminPanel from './components/AdminPanel';
 import { MapPin, Calendar, Volume2, VolumeX, Camera } from 'lucide-react';
+import { collection, doc, getDocs, setDoc, Timestamp } from 'firebase/firestore';
+import { db } from './firebase';
 
-const ACCESS_STORAGE_KEY = 'lucca_invite_access';
-const RSVP_STATUS_STORAGE_KEY = 'lucca_rsvp_status';
+const RSVP_COLLECTION = 'rsvp_confirmations';
 
 const DEFAULT_STATUSES: Record<string, GuestStatus> = {};
-
-const getInitialAccess = () => {
-  if (typeof window === 'undefined') return false;
-  return localStorage.getItem(ACCESS_STORAGE_KEY) === '1';
-};
-
-const getInitialStatuses = (): Record<string, GuestStatus> => {
-  if (typeof window === 'undefined') return DEFAULT_STATUSES;
-
-  try {
-    const raw = localStorage.getItem(RSVP_STATUS_STORAGE_KEY);
-    if (!raw) return DEFAULT_STATUSES;
-    const parsed = JSON.parse(raw);
-    return {
-      ...DEFAULT_STATUSES,
-      ...parsed
-    };
-  } catch {
-    return DEFAULT_STATUSES;
-  }
-};
 
 const App: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -42,17 +22,40 @@ const App: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showPlayButton, setShowPlayButton] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [hasAccess, setHasAccess] = useState(getInitialAccess);
-  const [guestStatuses, setGuestStatuses] = useState<Record<string, GuestStatus>>(getInitialStatuses);
+  const [hasAccess, setHasAccess] = useState(false);
+  const [guestStatuses, setGuestStatuses] = useState<Record<string, GuestStatus>>(DEFAULT_STATUSES);
   const [isAdminMode, setIsAdminMode] = useState(false);
 
   useEffect(() => {
-    // Simular carregamento inicial
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
+    const loadStatuses = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, RSVP_COLLECTION));
+        const loadedStatuses: Record<string, GuestStatus> = {};
 
-    return () => clearTimeout(timer);
+        snapshot.forEach((item) => {
+          const data = item.data() as { confirmedBy?: string; selfConfirmed?: boolean };
+          if (data.selfConfirmed) {
+            loadedStatuses[item.id] = { type: 'confirmed' };
+            return;
+          }
+
+          if (typeof data.confirmedBy === 'string' && data.confirmedBy.trim().length > 0) {
+            loadedStatuses[item.id] = {
+              type: 'confirmedByFamily',
+              by: data.confirmedBy
+            };
+          }
+        });
+
+        setGuestStatuses(loadedStatuses);
+      } catch (error) {
+        console.error('Erro ao carregar confirmações do Firestore:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadStatuses();
   }, []);
 
   useEffect(() => {
@@ -96,7 +99,7 @@ const App: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, []);
 
-  const handleConfirmEntry = (payload: { primaryGuest: string; familyGuests: string[] }) => {
+  const handleConfirmEntry = async (payload: { primaryGuest: string; familyGuests: string[] }) => {
     const updatedStatuses: Record<string, GuestStatus> = {
       ...guestStatuses,
       [payload.primaryGuest]: { type: 'confirmed' }
@@ -115,20 +118,47 @@ const App: React.FC = () => {
     setGuestStatuses(updatedStatuses);
     setHasAccess(true);
 
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(ACCESS_STORAGE_KEY, '1');
-      localStorage.setItem(RSVP_STATUS_STORAGE_KEY, JSON.stringify(updatedStatuses));
+    try {
+      await setDoc(doc(db, RSVP_COLLECTION, payload.primaryGuest), {
+        confirmedBy: payload.primaryGuest,
+        selfConfirmed: true,
+        confirmedAt: Timestamp.now()
+      });
+
+      await Promise.all(
+        payload.familyGuests.map((familyGuest) =>
+          setDoc(doc(db, RSVP_COLLECTION, familyGuest), {
+            confirmedBy: payload.primaryGuest,
+            selfConfirmed: false,
+            confirmedAt: Timestamp.now()
+          })
+        )
+      );
+    } catch (error) {
+      console.error('Erro ao salvar confirmações no Firestore:', error);
     }
   };
 
-  const handleStatusChange = (guestKey: string, newStatus: GuestStatus) => {
+  const handleStatusChange = async (guestKey: string, newStatus: GuestStatus) => {
     const updatedStatuses = {
       ...guestStatuses,
       [guestKey]: newStatus
     };
     setGuestStatuses(updatedStatuses);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(RSVP_STATUS_STORAGE_KEY, JSON.stringify(updatedStatuses));
+
+    if (newStatus.type === 'pending') {
+      return;
+    }
+
+    try {
+      const confirmedBy = newStatus.type === 'confirmed' ? guestKey : (newStatus.by || guestKey);
+      await setDoc(doc(db, RSVP_COLLECTION, guestKey), {
+        confirmedBy,
+        selfConfirmed: newStatus.type === 'confirmed',
+        confirmedAt: Timestamp.now()
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar status no Firestore:', error);
     }
   };
 
