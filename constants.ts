@@ -7,9 +7,9 @@ export const PARTY_DATA: PartyDetails = {
   date: "2026-04-25T14:00:00",
   time: "14:00",
   location: {
-    name: "Conjunto Ouro Verde",
-    address: "Rua Marechal Otávio Saldanha Mazza, 6740 - Capão Raso, Curitiba - PR, 81130-220",
-    mapUrl: "https://www.google.com/maps/search/?api=1&query=Rua+Marechal+Otávio+Saldanha+Mazza+6740+Curitiba"
+    name: "Capela Velha",
+    address: "Tv. Green Village, 40 - Capela Velha, Araucária - PR",
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Tv.+Green+Village+40+Capela+Velha+Araucária"
   },
   giftList: [
     { id: "1", name: "Roupas Tamanho 1-2 anos", link: "#", category: "Vestuário" },

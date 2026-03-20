@@ -12,15 +12,15 @@ const Location: React.FC = () => {
         </div>
         <div>
             <h2 className="text-2xl font-display text-slate-800">Local da Expedição</h2>
-            <p className="text-slate-400 text-sm font-medium uppercase tracking-widest">Conjunto Ouro Verde</p>
+            <p className="text-slate-400 text-sm font-medium uppercase tracking-widest">Capela Velha</p>
         </div>
       </div>
       
       <div className="grid lg:grid-cols-2 gap-10 items-start">
         <div className="space-y-6">
           <p className="text-slate-600 leading-relaxed text-lg">
-            Nossa base de exploradores será no <span className="font-bold text-green-700">{PARTY_DATA.location.name}</span>. 
-            Identifique o prédio pela fachada mostrada ao lado!
+            Nossa festa será em <span className="font-bold text-green-700">{PARTY_DATA.location.name}</span>. 
+            Confira a foto da entrada ao lado para localizar o lugar!
           </p>
           
           <div className="p-6 bg-green-50/50 rounded-3xl border border-green-100 space-y-4">
@@ -52,16 +52,16 @@ const Location: React.FC = () => {
             <div className="relative aspect-[4/3] bg-slate-100 rounded-[2rem] overflow-hidden border-4 border-white shadow-xl group">
                 {/* Foto da fachada do condomínio */}
                 <img 
-                  src="/Fachada.png" 
-                  alt="Fachada do Condomínio Ouro Verde"
+                  src="/location-entrance.jpg" 
+                  alt="Entrada do local da festa"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
                 <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm p-3 rounded-xl shadow-lg border border-slate-100">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Foto da Fachada do Condomínio</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Foto da Entrada</p>
                 </div>
             </div>
-            <p className="text-center text-xs text-slate-400 italic font-medium">Fácil localização no Capão Raso!</p>
+            <p className="text-center text-xs text-slate-400 italic font-medium">Localizado em Capela Velha!</p>
         </div>
       </div>
     </div>

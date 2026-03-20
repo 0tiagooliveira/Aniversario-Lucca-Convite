@@ -4,11 +4,37 @@ import { PARTY_DATA } from './constants';
 import Hero from './components/Hero';
 import Countdown from './components/Countdown';
 import Location from './components/Location';
-import GiftList from './components/GiftList';
-import RSVPForm from './components/RSVPForm';
 import GuestGallery from './components/GuestGallery';
 import LoadingScreen from './components/LoadingScreen';
-import { Gift, MapPin, Calendar, CheckCircle, Volume2, VolumeX, Camera } from 'lucide-react';
+import EntryGate, { GuestStatus } from './components/EntryGate';
+import AdminPanel from './components/AdminPanel';
+import { MapPin, Calendar, Volume2, VolumeX, Camera } from 'lucide-react';
+
+const ACCESS_STORAGE_KEY = 'lucca_invite_access';
+const RSVP_STATUS_STORAGE_KEY = 'lucca_rsvp_status';
+
+const DEFAULT_STATUSES: Record<string, GuestStatus> = {};
+
+const getInitialAccess = () => {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem(ACCESS_STORAGE_KEY) === '1';
+};
+
+const getInitialStatuses = (): Record<string, GuestStatus> => {
+  if (typeof window === 'undefined') return DEFAULT_STATUSES;
+
+  try {
+    const raw = localStorage.getItem(RSVP_STATUS_STORAGE_KEY);
+    if (!raw) return DEFAULT_STATUSES;
+    const parsed = JSON.parse(raw);
+    return {
+      ...DEFAULT_STATUSES,
+      ...parsed
+    };
+  } catch {
+    return DEFAULT_STATUSES;
+  }
+};
 
 const App: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -16,6 +42,9 @@ const App: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showPlayButton, setShowPlayButton] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasAccess, setHasAccess] = useState(getInitialAccess);
+  const [guestStatuses, setGuestStatuses] = useState<Record<string, GuestStatus>>(getInitialStatuses);
+  const [isAdminMode, setIsAdminMode] = useState(false);
 
   useEffect(() => {
     // Simular carregamento inicial
@@ -27,7 +56,7 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (isLoading) return; // Não tocar música enquanto carrega
+    if (isLoading || !hasAccess) return; // Não tocar música enquanto carrega ou sem confirmação
     
     // Tentar reproduzir a música imediatamente
     const playAudio = async () => {
@@ -48,7 +77,60 @@ const App: React.FC = () => {
     const timer = setTimeout(playAudio, 100);
 
     return () => clearTimeout(timer);
-  }, [isPlaying, isLoading]);
+  }, [isPlaying, isLoading, hasAccess]);
+
+  useEffect(() => {
+    let adminSequence = '';
+    const handleKeyPress = (e: KeyboardEvent) => {
+      adminSequence += e.key.toLowerCase();
+      if (adminSequence.length > 10) {
+        adminSequence = adminSequence.slice(-10);
+      }
+      if (adminSequence.includes('admin')) {
+        setIsAdminMode(true);
+        adminSequence = '';
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
+
+  const handleConfirmEntry = (payload: { primaryGuest: string; familyGuests: string[] }) => {
+    const updatedStatuses: Record<string, GuestStatus> = {
+      ...guestStatuses,
+      [payload.primaryGuest]: { type: 'confirmed' }
+    };
+
+    payload.familyGuests.forEach((familyGuest) => {
+      const current = updatedStatuses[familyGuest];
+      if (!current || current.type !== 'confirmed') {
+        updatedStatuses[familyGuest] = {
+          type: 'confirmedByFamily',
+          by: payload.primaryGuest
+        };
+      }
+    });
+
+    setGuestStatuses(updatedStatuses);
+    setHasAccess(true);
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(ACCESS_STORAGE_KEY, '1');
+      localStorage.setItem(RSVP_STATUS_STORAGE_KEY, JSON.stringify(updatedStatuses));
+    }
+  };
+
+  const handleStatusChange = (guestKey: string, newStatus: GuestStatus) => {
+    const updatedStatuses = {
+      ...guestStatuses,
+      [guestKey]: newStatus
+    };
+    setGuestStatuses(updatedStatuses);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(RSVP_STATUS_STORAGE_KEY, JSON.stringify(updatedStatuses));
+    }
+  };
 
   const handlePlayClick = async () => {
     if (audioRef.current) {
@@ -73,6 +155,20 @@ const App: React.FC = () => {
     return <LoadingScreen />;
   }
 
+  if (isAdminMode) {
+    return (
+      <AdminPanel 
+        statuses={guestStatuses} 
+        onStatusChange={handleStatusChange}
+        onLogout={() => setIsAdminMode(false)}
+      />
+    );
+  }
+
+  if (!hasAccess) {
+    return <EntryGate statuses={guestStatuses} onConfirmEntry={handleConfirmEntry} />;
+  }
+
   return (
     <div className="min-h-screen pb-24 bg-[#fdfbf7] text-slate-800">
       {/* Audio Player */}
@@ -81,19 +177,6 @@ const App: React.FC = () => {
         loop
         src="/PARABÉNS DA GALINHA PINTADINHA - Clipe Música Oficial - Galinha Pintadinha 4 - Galinha Pintadinha (youtube)_[cut_59sec].mp3"
       />
-
-      {/* Botão de Play inicial (se autoplay bloqueado) */}
-      {showPlayButton && (
-        <div className="fixed inset-0 z-[300] bg-black/50 backdrop-blur-sm flex items-center justify-center animate-in fade-in">
-          <button
-            onClick={handlePlayClick}
-            className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-full shadow-2xl text-xl font-bold flex items-center gap-3 transition-all hover:scale-110 animate-pulse"
-          >
-            <Volume2 size={32} />
-            Clique para Iniciar a Festa! 🎉
-          </button>
-        </div>
-      )}
 
       {/* Botão de controle de som flutuante */}
       {isPlaying && (
@@ -143,20 +226,12 @@ const App: React.FC = () => {
 
         {/* Dynamic Sections */}
         <section className="space-y-10">
-          <div id="rsvp">
-            <RSVPForm />
-          </div>
-
           <div id="gallery">
             <GuestGallery />
           </div>
 
           <div id="location">
             <Location />
-          </div>
-
-          <div id="gifts">
-            <GiftList />
           </div>
         </section>
       </main>
@@ -171,13 +246,6 @@ const App: React.FC = () => {
           <span className="text-[9px] font-bold uppercase tracking-tighter">Início</span>
         </button>
         <button 
-          onClick={() => document.getElementById('rsvp')?.scrollIntoView({ behavior: 'smooth' })}
-          className="flex flex-col items-center gap-1 text-slate-400 hover:text-orange-600 transition-all"
-        >
-          <CheckCircle size={20} />
-          <span className="text-[9px] font-bold uppercase tracking-tighter">RSVP</span>
-        </button>
-        <button 
           onClick={() => document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth' })}
           className="flex flex-col items-center gap-1 text-slate-400 hover:text-orange-600 transition-all"
         >
@@ -185,11 +253,11 @@ const App: React.FC = () => {
           <span className="text-[9px] font-bold uppercase tracking-tighter">Galeria</span>
         </button>
         <button 
-          onClick={() => document.getElementById('gifts')?.scrollIntoView({ behavior: 'smooth' })}
+          onClick={() => document.getElementById('location')?.scrollIntoView({ behavior: 'smooth' })}
           className="flex flex-col items-center gap-1 text-slate-400 hover:text-orange-600 transition-all"
         >
-          <Gift size={20} />
-          <span className="text-[9px] font-bold uppercase tracking-tighter">Presentes</span>
+          <MapPin size={20} />
+          <span className="text-[9px] font-bold uppercase tracking-tighter">Local</span>
         </button>
       </nav>
 
