@@ -207,6 +207,10 @@ Precisamos da sua confirmacao para liberar o convite completo.
                     const guestStatus = statuses[guest.key] ?? { type: 'pending' as ConfirmationType };
                     const photoKey = PHOTO_KEYS[guest.key] || guest.key;
                     const photo = GUEST_PHOTOS[photoKey] || GUEST_PHOTOS[guest.label];
+                    const confirmationTagText =
+                      guestStatus.type === 'confirmedByFamily'
+                        ? `✓ Confirmado por ${getGuestLabel(guestStatus.by || '')}`
+                        : '✓ Confirmado';
 
                     return (
                       <button
@@ -229,16 +233,17 @@ Precisamos da sua confirmacao para liberar o convite completo.
                           )}
                           <div>
                             <p className="font-semibold text-slate-800">{guest.label}</p>
-                            <p className="text-xs text-slate-500">{statusLabel(guestStatus)}</p>
+                            {guestStatus.type !== 'pending' ? (
+                              <span className="mt-1 inline-flex rounded-full bg-emerald-100 px-2 py-1 text-[11px] font-bold text-emerald-700">
+                                {confirmationTagText}
+                              </span>
+                            ) : (
+                              <p className="text-xs text-slate-500">{statusLabel(guestStatus)}</p>
+                            )}
                           </div>
                         </div>
 
                         <div className="flex items-center gap-2">
-                          {guestStatus.type !== 'pending' && (
-                            <span className="rounded-full bg-emerald-100 px-2 py-1 text-[11px] font-bold text-emerald-700">
-                              ✓ Confirmado
-                            </span>
-                          )}
                           <span className="text-sm font-semibold text-orange-500 opacity-0 transition-opacity group-hover:opacity-100">→</span>
                         </div>
                       </button>
