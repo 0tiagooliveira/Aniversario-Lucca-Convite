@@ -72,9 +72,7 @@ if not defined HAS_REMOTE (
 	git remote set-url origin %REPO_URL%
 )
 
-for /f "delims=" %%B in ('git branch --show-current') do set "CURRENT_BRANCH=%%B"
-if not defined CURRENT_BRANCH set "CURRENT_BRANCH=%DEFAULT_BRANCH%"
-
+set "CURRENT_BRANCH=%DEFAULT_BRANCH%"
 git branch -M !CURRENT_BRANCH!
 
 echo [3/5] Commit e push no GitHub...
