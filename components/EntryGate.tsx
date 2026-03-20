@@ -12,6 +12,7 @@ interface GuestStatus {
 interface EntryGateProps {
   statuses: Record<string, GuestStatus>;
   onConfirmEntry: (payload: { primaryGuest: string; familyGuests: string[] }) => void;
+  onOpenAdmin?: () => void;
 }
 
 type Guest = { key: string; label: string };
@@ -76,7 +77,7 @@ const statusLabel = (status?: GuestStatus) => {
   return 'Aguardando confirmacao';
 };
 
-const EntryGate: React.FC<EntryGateProps> = ({ statuses, onConfirmEntry }) => {
+const EntryGate: React.FC<EntryGateProps> = ({ statuses, onConfirmEntry, onOpenAdmin }) => {
   const [search, setSearch] = useState('');
   const [selectedGuest, setSelectedGuest] = useState<string | null>(null);
   const [familyGoing, setFamilyGoing] = useState<boolean | null>(null);
@@ -252,6 +253,16 @@ Precisamos da sua confirmacao para liberar o convite completo.
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              onClick={onOpenAdmin}
+              className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 transition-colors hover:text-slate-600"
+            >
+              Acesso do Administrador
+            </button>
           </div>
         </div>
       </div>

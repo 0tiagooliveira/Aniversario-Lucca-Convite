@@ -196,7 +196,13 @@ const App: React.FC = () => {
   }
 
   if (!hasAccess) {
-    return <EntryGate statuses={guestStatuses} onConfirmEntry={handleConfirmEntry} />;
+    return (
+      <EntryGate
+        statuses={guestStatuses}
+        onConfirmEntry={handleConfirmEntry}
+        onOpenAdmin={() => setIsAdminMode(true)}
+      />
+    );
   }
 
   return (
