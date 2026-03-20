@@ -10,7 +10,7 @@ set "DEFAULT_COMMIT_MSG=deploy: atualiza convite"
 if "%~1"=="" (
 	set "COMMIT_MSG=%DEFAULT_COMMIT_MSG%"
 ) else (
-	set "COMMIT_MSG=%*"
+	set "COMMIT_MSG=%~1"
 )
 
 echo ==============================================
