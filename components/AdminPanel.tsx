@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GUEST_PHOTOS, GUEST_LIST } from '../constants';
+import { GUEST_PHOTOS, GUEST_LIST, toGuestKey } from '../constants';
 import { LogOut, Check, X, User } from 'lucide-react';
 
 interface GuestStatus {
@@ -24,29 +24,28 @@ const PHOTO_KEYS: Record<string, string> = {
 const AdminPanel: React.FC<AdminPanelProps> = ({ statuses, onStatusChange, onLogout }) => {
   const [searchFilter, setSearchFilter] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'confirmed' | 'pending'>('all');
+  const guests = GUEST_LIST.map((label) => ({ key: toGuestKey(label), label }));
 
   const getPhotoUrl = (guestName: string): string | null => {
     const photoKey = PHOTO_KEYS[guestName] || guestName;
     return GUEST_PHOTOS[photoKey] || GUEST_PHOTOS[guestName] || null;
   };
 
-  const GUEST_KEYS = GUEST_LIST.map(name => {
-    const key = name.replace(/ã|á/g, 'a').replace(/é/g, 'e').replace(/í/g, 'i').replace(/ó|õ/g, 'o').replace(/ú/g, 'u').replace(/ç/g, 'c').replace(/\s+/g, '');
-    return key.charAt(0).toUpperCase() + key.slice(1);
-  });
-
-  const filteredGuests = GUEST_KEYS.filter((guestKey) => {
-    const guestLabel = GUEST_LIST[GUEST_KEYS.indexOf(guestKey)];
-    const status = statuses[guestKey];
+  const filteredGuests = guests.filter(({ key, label }) => {
+    const status = statuses[key];
+    const guestLabel = label;
     const matchesSearch = guestLabel.toLowerCase().includes(searchFilter.toLowerCase());
     
-    if (filterType === 'confirmed') return matchesSearch && status?.type !== 'pending';
+    if (filterType === 'confirmed') return matchesSearch && !!status && status.type !== 'pending';
     if (filterType === 'pending') return matchesSearch && (!status || status.type === 'pending');
     return matchesSearch;
   });
 
-  const confirmedCount = GUEST_KEYS.filter(k => statuses[k]?.type !== 'pending').length;
-  const pendingCount = GUEST_KEYS.filter(k => !statuses[k] || statuses[k]?.type === 'pending').length;
+  const confirmedCount = guests.filter(({ key }) => {
+    const status = statuses[key];
+    return !!status && status.type !== 'pending';
+  }).length;
+  const pendingCount = guests.length - confirmedCount;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-4 md:p-8">
@@ -78,7 +77,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ statuses, onStatusChange, onLog
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-blue-500">
             <p className="text-gray-600 text-sm font-semibold">TOTAL CONVIDADOS</p>
-            <p className="text-4xl font-bold text-blue-600 mt-2">{GUEST_KEYS.length}</p>
+            <p className="text-4xl font-bold text-blue-600 mt-2">{guests.length}</p>
           </div>
         </div>
 
@@ -117,15 +116,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ statuses, onStatusChange, onLog
 
         {/* Guest List */}
         <div className="grid gap-4">
-          {filteredGuests.map((guestKey) => {
-            const guestIndex = GUEST_KEYS.indexOf(guestKey);
-            const guestLabel = GUEST_LIST[guestIndex];
-            const status = statuses[guestKey];
+          {filteredGuests.map(({ key, label }) => {
+            const status = statuses[key];
+            const guestLabel = label;
             const photo = getPhotoUrl(guestLabel);
-            const isConfirmed = status?.type !== 'pending';
+            const isConfirmed = !!status && status.type !== 'pending';
 
             return (
-              <div key={guestKey} className={`bg-white rounded-2xl shadow-lg p-6 border-l-4 ${isConfirmed ? 'border-green-500' : 'border-yellow-500'}`}>
+              <div key={key} className={`bg-white rounded-2xl shadow-lg p-6 border-l-4 ${isConfirmed ? 'border-green-500' : 'border-yellow-500'}`}>
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-4 flex-1">
                     {photo ? (
@@ -141,7 +139,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ statuses, onStatusChange, onLog
                         {isConfirmed ? (
                           status?.type === 'confirmed' 
                             ? '✓ Confirmado' 
-                            : `✓ Confirmado por ${GUEST_LIST[GUEST_KEYS.indexOf(status?.by || '')]}`
+                            : `✓ Confirmado por ${guests.find((guest) => guest.key === (status?.by || ''))?.label || status?.by}`
                         ) : (
                           '⏳ Aguardando confirmação'
                         )}
@@ -150,14 +148,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ statuses, onStatusChange, onLog
                   </div>
                   <div className="flex gap-2 flex-shrink-0">
                     <button
-                      onClick={() => onStatusChange(guestKey, { type: 'confirmed' })}
+                      onClick={() => onStatusChange(key, { type: 'confirmed' })}
                       className={`px-4 py-2 rounded-xl font-bold transition-all flex items-center gap-2 ${isConfirmed ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600 hover:bg-green-500 hover:text-white'}`}
                     >
                       <Check size={18} />
                       Confirmar
                     </button>
                     <button
-                      onClick={() => onStatusChange(guestKey, { type: 'pending' })}
+                      onClick={() => onStatusChange(key, { type: 'pending' })}
                       className={`px-4 py-2 rounded-xl font-bold transition-all flex items-center gap-2 ${!isConfirmed ? 'bg-yellow-500 text-white' : 'bg-gray-200 text-gray-600 hover:bg-yellow-500 hover:text-white'}`}
                     >
                       <X size={18} />

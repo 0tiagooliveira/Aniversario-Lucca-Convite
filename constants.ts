@@ -42,11 +42,17 @@ export const PARTY_DATA: PartyDetails = {
 };
 
 export const GUEST_LIST = [
-  "Papai", "Mamãe", "Marisa", "Cleide", "Teté", "Wesley", "Luiza", "Geovana", "Bruno", "Silvana", 
-  "Caciane", "Arthur", "Raiane", "Alexandre", "Rose", "Antony", "Lucas", 
-  "Gabriela", "Terezinha", "Carlinhos", "Acedina", "Beth", "Renato", 
-  "Leonardo", "Andréia", "Marido Andréia", "Sabrina", "Edina", "Elcio", "Anselmo"
+  "Papai", "Mamãe", "Marisa", "Cleide", "Teté", "Wesley", "Luiza", "Geovana", "Bruno",
+  "Rose", "Antony", "Lucas", "Gabriela", "Terezinha", "Carlinhos", "Acedina", "Beth", "Renato",
+  "Leonardo", "Andréia", "Sabrina", "Edina", "Elcio", "Anselmo"
 ];
+
+export const toGuestKey = (name: string): string => {
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]/g, '');
+};
 
 export const GUEST_PHOTOS: Record<string, string> = {
   "Marisa": "/Marisa.png",
@@ -56,7 +62,6 @@ export const GUEST_PHOTOS: Record<string, string> = {
   "Rose": "/Rose.png",
   "Lucas": "/Lucas.png",
   "Antony": "/Antoni.png",
-  "Caciane": "/Cassiane.png",
   "Papai": "/Papai.png",
   "Mamãe": "/Mamãe.png",
   "Geovana": "/Geovana.png",
@@ -64,12 +69,8 @@ export const GUEST_PHOTOS: Record<string, string> = {
   "Bruno": "/Bruno.png",
   "Luiza": "/Luiza.png",
   "Terezinha": "/Teresinha.png",
-  "Silvana": "/Silvana.png",
   "Anselmo": "/Anselmo e Andréia.png",
-  "Andréia": "/Anselmo e Andréia.png",
-  "Alexandre": "/Alexandre.png",
-  "Arthur": "/Arthur.png",
-  "Raiane": "/Raiane.png"
+  "Andréia": "/Anselmo e Andréia.png"
 };
 
 export const SYSTEM_PROMPT = `Você é o Guia do Safari do Lucca! 🦒🦁🦓

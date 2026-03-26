@@ -9,7 +9,7 @@ import LoadingScreen from './components/LoadingScreen';
 import EntryGate, { GuestStatus } from './components/EntryGate';
 import AdminPanel from './components/AdminPanel';
 import { MapPin, Calendar, Volume2, VolumeX, Camera } from 'lucide-react';
-import { collection, doc, getDocs, setDoc, Timestamp } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDocs, setDoc, Timestamp } from 'firebase/firestore';
 import { db } from './firebase';
 
 const RSVP_COLLECTION = 'rsvp_confirmations';
@@ -140,15 +140,24 @@ const App: React.FC = () => {
   };
 
   const handleStatusChange = async (guestKey: string, newStatus: GuestStatus) => {
+    if (newStatus.type === 'pending') {
+      // Remove do Firestore e do estado local
+      const updatedStatuses = { ...guestStatuses };
+      delete updatedStatuses[guestKey];
+      setGuestStatuses(updatedStatuses);
+      try {
+        await deleteDoc(doc(db, RSVP_COLLECTION, guestKey));
+      } catch (error) {
+        console.error('Erro ao remover confirmação no Firestore:', error);
+      }
+      return;
+    }
+    // Confirma normalmente
     const updatedStatuses = {
       ...guestStatuses,
       [guestKey]: newStatus
     };
     setGuestStatuses(updatedStatuses);
-
-    if (newStatus.type === 'pending') {
-      return;
-    }
 
     try {
       const confirmedBy = newStatus.type === 'confirmed' ? guestKey : (newStatus.by || guestKey);

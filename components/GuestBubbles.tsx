@@ -23,10 +23,20 @@ const GuestBubbles: React.FC<GuestBubblesProps> = ({ guests = [] }) => {
     const defaultGuests: GuestBubble[] = guests.length > 0 ? guests : [
       { name: 'Marisa', photo: GUEST_PHOTOS['Marisa'] },
       { name: 'Cleide', photo: GUEST_PHOTOS['Cleide'] },
-      { name: 'Wesley' },
-      { name: 'Luiza' },
-      { name: 'Tetê' },
-      { name: 'Geovana' }
+      { name: 'Wesley', photo: GUEST_PHOTOS['Wesley'] },
+      { name: 'Luiza', photo: GUEST_PHOTOS['Luiza'] },
+      { name: 'Teté', photo: GUEST_PHOTOS['Teté'] },
+      { name: 'Geovana', photo: GUEST_PHOTOS['Geovana'] },
+      { name: 'Rose', photo: GUEST_PHOTOS['Rose'] },
+      { name: 'Lucas', photo: GUEST_PHOTOS['Lucas'] },
+      { name: 'Antony', photo: GUEST_PHOTOS['Antony'] },
+      { name: 'Papai', photo: GUEST_PHOTOS['Papai'] },
+      { name: 'Mamãe', photo: GUEST_PHOTOS['Mamãe'] },
+      { name: 'Sabrina', photo: GUEST_PHOTOS['Sabrina'] },
+      { name: 'Bruno', photo: GUEST_PHOTOS['Bruno'] },
+      { name: 'Terezinha', photo: GUEST_PHOTOS['Terezinha'] },
+      { name: 'Anselmo', photo: GUEST_PHOTOS['Anselmo'] },
+      { name: 'Andréia', photo: GUEST_PHOTOS['Andréia'] }
     ];
 
     // Criar engine e mundo

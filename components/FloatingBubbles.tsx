@@ -59,7 +59,7 @@ const greetingPhrases = [
 
 // Convidados que já confirmaram (adicione os nomes aqui)
 const confirmedGuests = [
-  'Marisa', 'Cleide', 'Wesley', 'Teté', 'Rose', 'Lucas', 'Antony', 'Caciane', 'Papai', 'Mamãe', 'Geovana', 'Sabrina', 'Bruno', 'Luiza', 'Terezinha', 'Silvana', 'Anselmo', 'Andréia', 'Alexandre', 'Arthur', 'Raiane'
+  'Marisa', 'Cleide', 'Wesley', 'Teté', 'Rose', 'Lucas', 'Antony', 'Papai', 'Mamãe', 'Geovana', 'Sabrina', 'Bruno', 'Luiza', 'Terezinha', 'Anselmo', 'Andréia'
 ];
 
 const FloatingBubbles: React.FC<FloatingBubblesProps> = ({ containerWidth, containerHeight }) => {
@@ -70,10 +70,7 @@ const FloatingBubbles: React.FC<FloatingBubblesProps> = ({ containerWidth, conta
   const speechTimerRef = useRef<number>();
 
   const guests = [
-    // Convidados com fotos primeiro (aparecem no topo)
-    'Marisa', 'Cleide', 'Wesley', 'Teté', 'Rose', 'Lucas', 'Antony', 'Caciane', 
-    'Papai', 'Mamãe', 'Geovana', 'Sabrina', 'Bruno', 'Luiza', 'Terezinha', 'Silvana',
-    'Anselmo', 'Andréia', 'Alexandre', 'Arthur', 'Raiane'
+    'Marisa', 'Cleide', 'Wesley', 'Teté', 'Rose', 'Lucas', 'Antony', 'Papai', 'Mamãe', 'Geovana', 'Sabrina', 'Bruno', 'Luiza', 'Terezinha', 'Anselmo', 'Andréia'
   ];
 
   // Raio e configurações responsivas - muito menor no mobile

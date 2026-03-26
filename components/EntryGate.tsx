@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { GUEST_LIST, toGuestKey } from '../constants';
 import { GUEST_PHOTOS } from '../constants';
 import { CheckCircle2, PartyPopper, Users, Search } from 'lucide-react';
 
@@ -17,38 +18,10 @@ interface EntryGateProps {
 
 type Guest = { key: string; label: string };
 
-const GUESTS: Guest[] = [
-  { key: 'Marisa', label: 'Marisa' },
-  { key: 'Cleide', label: 'Cleide' },
-  { key: 'Tete', label: 'Teté' },
-  { key: 'Wesley', label: 'Wesley' },
-  { key: 'Luiza', label: 'Luiza' },
-  { key: 'Geovana', label: 'Geovana' },
-  { key: 'Bruno', label: 'Bruno' },
-  { key: 'Silvana', label: 'Silvana' },
-  { key: 'Cassiane', label: 'Cassiane' },
-  { key: 'Arthur', label: 'Arthur' },
-  { key: 'Raiane', label: 'Raiane' },
-  { key: 'Alexandre', label: 'Alexandre' },
-  { key: 'Felipe', label: 'Felipe' },
-  { key: 'Monique', label: 'Monique' },
-  { key: 'Rose', label: 'Rose' },
-  { key: 'Antony', label: 'Antony' },
-  { key: 'Lucas', label: 'Lucas' },
-  { key: 'Gabriela', label: 'Gabriela' },
-  { key: 'Rogerio', label: 'Rogério' },
-  { key: 'Leandro', label: 'Leandro' },
-  { key: 'Acedina', label: 'Acedina' },
-  { key: 'Beth', label: 'Beth' },
-  { key: 'Renato', label: 'Renato' },
-  { key: 'Leonardo', label: 'Leonardo' },
-  { key: 'Andreia', label: 'Andréia' },
-  { key: 'Marido Andreia', label: 'Marido Andréia' },
-  { key: 'Sabrina', label: 'Sabrina' },
-  { key: 'Papai', label: 'Papai' },
-  { key: 'Mamae', label: 'Mamãe' },
-  { key: 'Anselmo', label: 'Anselmo' }
-];
+const GUESTS: Guest[] = GUEST_LIST.map((label) => ({
+  key: toGuestKey(label),
+  label
+}));
 
 const PHOTO_KEYS: Record<string, string> = {
   Tete: 'Teté',
@@ -61,9 +34,7 @@ const PHOTO_KEYS: Record<string, string> = {
 const FAMILY_GROUPS: string[][] = [
   ['Tete', 'Wesley', 'Cleide'],
   ['Geovana', 'Bruno'],
-  ['Silvana', 'Cassiane', 'Rogerio', 'Alexandre', 'Raiane', 'Arthur'],
-  ['Felipe', 'Monique'],
-  ['Rose', 'Lucas', 'Gabriela', 'Leandro', 'Antony']
+  ['Rose', 'Lucas', 'Gabriela', 'Antony']
 ];
 
 const getGuestLabel = (guestKey: string) => {
