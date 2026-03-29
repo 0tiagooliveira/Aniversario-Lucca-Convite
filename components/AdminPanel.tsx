@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GUEST_PHOTOS, GUEST_LIST, toGuestKey } from '../constants';
 import { LogOut, Check, X, User } from 'lucide-react';
+
+import { fetchGuests, addGuest, removeGuest, Guest } from '../guestService';
 
 interface GuestStatus {
   type: 'pending' | 'confirmed' | 'confirmedByFamily';
@@ -21,27 +23,54 @@ const PHOTO_KEYS: Record<string, string> = {
   Cassiane: 'Cassiane'
 };
 
+
 const AdminPanel: React.FC<AdminPanelProps> = ({ statuses, onStatusChange, onLogout }) => {
   const [searchFilter, setSearchFilter] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'confirmed' | 'pending'>('all');
-  const guests = GUEST_LIST.map((label) => ({ key: toGuestKey(label), label }));
+  const [guests, setGuests] = useState<Guest[]>([]);
+  const [newGuestName, setNewGuestName] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadGuests();
+  }, []);
+
+  async function loadGuests() {
+    setLoading(true);
+    const data = await fetchGuests();
+    setGuests(data);
+    setLoading(false);
+  }
+
+  async function handleAddGuest() {
+    if (!newGuestName.trim()) return;
+    await addGuest(newGuestName.trim());
+    setNewGuestName('');
+    await loadGuests();
+  }
+
+  async function handleRemoveGuest(id: string) {
+    if (!window.confirm('Remover este convidado?')) return;
+    await removeGuest(id);
+    await loadGuests();
+  }
 
   const getPhotoUrl = (guestName: string): string | null => {
     const photoKey = PHOTO_KEYS[guestName] || guestName;
     return GUEST_PHOTOS[photoKey] || GUEST_PHOTOS[guestName] || null;
   };
 
-  const filteredGuests = guests.filter(({ key, label }) => {
+  const filteredGuests = guests.filter(({ id, name }) => {
+    const key = toGuestKey(name);
     const status = statuses[key];
-    const guestLabel = label;
-    const matchesSearch = guestLabel.toLowerCase().includes(searchFilter.toLowerCase());
-    
+    const matchesSearch = name.toLowerCase().includes(searchFilter.toLowerCase());
     if (filterType === 'confirmed') return matchesSearch && !!status && status.type !== 'pending';
     if (filterType === 'pending') return matchesSearch && (!status || status.type === 'pending');
     return matchesSearch;
   });
 
-  const confirmedCount = guests.filter(({ key }) => {
+  const confirmedCount = guests.filter(({ name }) => {
+    const key = toGuestKey(name);
     const status = statuses[key];
     return !!status && status.type !== 'pending';
   }).length;
@@ -81,9 +110,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ statuses, onStatusChange, onLog
           </div>
         </div>
 
-        {/* Filters and Search */}
+        {/* Filtros, busca e adicionar convidado */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-4 items-center">
             <input
               type="text"
               value={searchFilter}
@@ -112,34 +141,49 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ statuses, onStatusChange, onLog
               </button>
             </div>
           </div>
+          {/* Adicionar convidado */}
+          <div className="flex flex-col md:flex-row gap-2 mt-4 items-center">
+            <input
+              type="text"
+              value={newGuestName}
+              onChange={e => setNewGuestName(e.target.value)}
+              placeholder="Novo convidado"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+            <button
+              onClick={handleAddGuest}
+              className="px-4 py-2 rounded-xl font-bold bg-blue-500 text-white hover:bg-blue-600 transition-all"
+              disabled={loading || !newGuestName.trim()}
+            >Adicionar</button>
+          </div>
         </div>
 
         {/* Guest List */}
         <div className="grid gap-4">
-          {filteredGuests.map(({ key, label }) => {
+          {filteredGuests.map(({ id, name }) => {
+            const key = toGuestKey(name);
             const status = statuses[key];
-            const guestLabel = label;
-            const photo = getPhotoUrl(guestLabel);
+            const photo = getPhotoUrl(name);
             const isConfirmed = !!status && status.type !== 'pending';
 
             return (
-              <div key={key} className={`bg-white rounded-2xl shadow-lg p-6 border-l-4 ${isConfirmed ? 'border-green-500' : 'border-yellow-500'}`}>
+              <div key={id} className={`bg-white rounded-2xl shadow-lg p-6 border-l-4 ${isConfirmed ? 'border-green-500' : 'border-yellow-500'}`}>
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-4 flex-1">
                     {photo ? (
-                      <img src={photo} alt={guestLabel} className="h-16 w-16 rounded-full object-cover border-4 border-purple-200" />
+                      <img src={photo} alt={name} className="h-16 w-16 rounded-full object-cover border-4 border-purple-200" />
                     ) : (
                       <div className="h-16 w-16 rounded-full bg-purple-200 flex items-center justify-center text-2xl font-bold text-purple-700">
-                        {guestLabel.charAt(0)}
+                        {name.charAt(0)}
                       </div>
                     )}
                     <div className="flex-1">
-                      <h3 className="text-xl font-bold text-gray-800">{guestLabel}</h3>
+                      <h3 className="text-xl font-bold text-gray-800">{name}</h3>
                       <p className={`text-sm font-semibold mt-1 ${isConfirmed ? 'text-green-600' : 'text-yellow-600'}`}>
                         {isConfirmed ? (
                           status?.type === 'confirmed' 
                             ? '✓ Confirmado' 
-                            : `✓ Confirmado por ${guests.find((guest) => guest.key === (status?.by || ''))?.label || status?.by}`
+                            : `✓ Confirmado por ${guests.find((g) => toGuestKey(g.name) === (status?.by || ''))?.name || status?.by}`
                         ) : (
                           '⏳ Aguardando confirmação'
                         )}
@@ -161,6 +205,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ statuses, onStatusChange, onLog
                       <X size={18} />
                       Pendente
                     </button>
+                    <button
+                      onClick={() => id && handleRemoveGuest(id)}
+                      className="px-4 py-2 rounded-xl font-bold bg-red-500 text-white hover:bg-red-600 transition-all"
+                      title="Remover convidado"
+                    >Remover</button>
                   </div>
                 </div>
               </div>
