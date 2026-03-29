@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { GUEST_LIST, GUEST_PHOTOS } from '../constants';
+import { GUEST_PHOTOS } from '../constants';
+import { fetchGuests, Guest } from '../guestService';
 import { CheckCircle2, UserCheck, Users, Search, Plus, X } from 'lucide-react';
 
 const RSVPForm: React.FC = () => {
@@ -9,10 +10,22 @@ const RSVPForm: React.FC = () => {
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [companions, setCompanions] = useState<string[]>([]);
   const [step, setStep] = useState<'search' | 'confirm' | 'success'>('search');
+  const [guests, setGuests] = useState<Guest[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredGuests = GUEST_LIST.filter(g => 
-    g.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(() => {
+    async function loadGuests() {
+      setLoading(true);
+      const data = await fetchGuests();
+      setGuests(data);
+      setLoading(false);
+    }
+    loadGuests();
+  }, []);
+
+  const filteredGuests = guests
+    .map(g => g.name)
+    .filter(g => g.toLowerCase().includes(searchTerm.toLowerCase()));
 
   const handleSelect = (name: string) => {
     setSelectedGuest(name);
