@@ -80,6 +80,7 @@ export const GUEST_PHOTOS: Record<string, string> = {
   "Gustavo": "/Gustavo.png",
   "Beth": "/Beth.jpeg",
   "Gabrielly": "/Gabrielly.png"
+  ,"Eliseu": "/Eliseu.png"
   ,"Carlinhos": "/Carlinhos.jpeg"
   ,"Renato": "/Renato.jpeg"
   ,"João": "/João.png"
