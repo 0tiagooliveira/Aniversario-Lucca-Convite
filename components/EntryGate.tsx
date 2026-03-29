@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from 'react';
-import { GUEST_LIST, toGuestKey } from '../constants';
+import React, { useMemo, useState, useEffect } from 'react';
+import { toGuestKey } from '../constants';
 import { GUEST_PHOTOS } from '../constants';
+import { fetchGuests } from '../guestService';
 import { CheckCircle2, PartyPopper, Users, Search } from 'lucide-react';
 
 type ConfirmationType = 'pending' | 'confirmed' | 'confirmedByFamily';
@@ -16,12 +17,7 @@ interface EntryGateProps {
   onOpenAdmin?: () => void;
 }
 
-type Guest = { key: string; label: string };
-
-const GUESTS: Guest[] = GUEST_LIST.map((label) => ({
-  key: toGuestKey(label),
-  label
-}));
+type GuestType = { key: string; label: string };
 
 const PHOTO_KEYS: Record<string, string> = {
   Tete: 'Teté',
@@ -37,17 +33,6 @@ const FAMILY_GROUPS: string[][] = [
   ['Rose', 'Lucas', 'Gabriela', 'Antony']
 ];
 
-const getGuestLabel = (guestKey: string) => {
-  return GUESTS.find((guest) => guest.key === guestKey)?.label || guestKey;
-};
-
-const statusLabel = (status?: GuestStatus) => {
-  if (!status) return 'Aguardando confirmacao';
-  if (status.type === 'confirmed') return 'Confirmou';
-  if (status.type === 'confirmedByFamily' && status.by) return `Confirmado por ${getGuestLabel(status.by)}`;
-  return 'Aguardando confirmacao';
-};
-
 const EntryGate: React.FC<EntryGateProps> = ({ statuses, onConfirmEntry, onOpenAdmin }) => {
   const [search, setSearch] = useState('');
   const [selectedGuest, setSelectedGuest] = useState<string | null>(null);
@@ -55,15 +40,40 @@ const EntryGate: React.FC<EntryGateProps> = ({ statuses, onConfirmEntry, onOpenA
   const [selectedFamilyGuests, setSelectedFamilyGuests] = useState<string[]>([]);
   const [extraGuestName, setExtraGuestName] = useState('');
   const [step, setStep] = useState<'selection' | 'success'>('selection');
+  const [guests, setGuests] = useState<GuestType[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadGuests() {
+      setLoading(true);
+      const data = await fetchGuests();
+      setGuests(data.map(g => ({ key: toGuestKey(g.name), label: g.name })));
+      setLoading(false);
+    }
+    loadGuests();
+  }, []);
+
+  // Função para buscar o nome do convidado pelo key, sempre usando o state guests
+  const getGuestLabel = (guestKey: string, guestsArr?: GuestType[]) => {
+    const arr = guestsArr || guests;
+    return arr.find((guest) => guest.key === guestKey)?.label || guestKey;
+  };
+
+  const statusLabel = (status?: GuestStatus) => {
+    if (!status) return 'Aguardando confirmacao';
+    if (status.type === 'confirmed') return 'Confirmou';
+    if (status.type === 'confirmedByFamily' && status.by) return `Confirmado por ${getGuestLabel(status.by)}`;
+    return 'Aguardando confirmacao';
+  };
 
   const filteredGuests = useMemo(() => {
-    return GUESTS.filter((guest) => guest.label.toLowerCase().includes(search.toLowerCase()));
-  }, [search]);
+    return guests.filter((guest) => guest.label.toLowerCase().includes(search.toLowerCase()));
+  }, [search, guests]);
 
   const selectedGuestData = useMemo(() => {
     if (!selectedGuest) return null;
-    return GUESTS.find((guest) => guest.key === selectedGuest) || null;
-  }, [selectedGuest]);
+    return guests.find((guest) => guest.key === selectedGuest) || null;
+  }, [selectedGuest, guests]);
 
   const familyGroup = useMemo(() => {
     if (!selectedGuest) return [];
@@ -100,6 +110,10 @@ const EntryGate: React.FC<EntryGateProps> = ({ statuses, onConfirmEntry, onOpenA
 
   const totalPeople =
     1 + (familyGoing && familyGroup.length > 0 ? selectedFamilyGuests.length : 0) + (extraGuestName.trim() ? 1 : 0);
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center text-xl text-orange-600">Carregando convidados...</div>;
+  }
 
   if (step === 'success' && selectedGuestData) {
     return (
@@ -181,7 +195,7 @@ Precisamos da sua confirmacao para liberar o convite completo.
                     const photo = GUEST_PHOTOS[photoKey] || GUEST_PHOTOS[guest.label];
                     const confirmationTagText =
                       guestStatus.type === 'confirmedByFamily'
-                        ? `✓ Confirmado por ${getGuestLabel(guestStatus.by || '')}`
+                        ? `✓ Confirmado por ${getGuestLabel(guestStatus.by || '', guests)}`
                         : '✓ Confirmado';
 
                     return (

@@ -71,14 +71,18 @@ export const GUEST_PHOTOS: Record<string, string> = {
   "Terezinha": "/Teresinha.png",
   "Anselmo": "/Anselmo e Andréia.png",
   "Andréia": "/Anselmo e Andréia.png",
-  "Edna": "/Edna.png",
-  "Ilson": "/Ilson.png",
+  "Edna": "/Edna.jpeg",
+  "Ilsom": "/Ilsom.jpeg",
+    "Acedina": "/Acedina.png",
   "Matheus": "/Matheus.png",
   "Elivelton": "/Elivelton.png",
-  "Leonardo": "/Leonardo.png",
+  "Leonardo": "/Leonardo.jpeg",
   "Gustavo": "/Gustavo.png",
-  "Beth": "/Beth.png",
+  "Beth": "/Beth.jpeg",
   "Gabrielly": "/Gabrielly.png"
+  ,"Carlinhos": "/Carlinhos.jpeg"
+  ,"Renato": "/Renato.jpeg"
+  ,"João": "/João.png"
 };
 
 export const SYSTEM_PROMPT = `Você é o Guia do Safari do Lucca! 🦒🦁🦓

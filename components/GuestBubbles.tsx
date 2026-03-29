@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import Matter from 'matter-js';
 import { GUEST_PHOTOS } from '../constants';
+import { fetchGuests } from '../guestService';
 
 interface GuestBubble {
   name: string;
@@ -11,33 +12,26 @@ interface GuestBubblesProps {
   guests?: GuestBubble[];
 }
 
+
 const GuestBubbles: React.FC<GuestBubblesProps> = ({ guests = [] }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<Matter.Engine | null>(null);
   const renderRef = useRef<Matter.Render | null>(null);
   const bodiesRef = useRef<Map<Matter.Body, GuestBubble>>(new Map());
+  const [dynamicGuests, setDynamicGuests] = React.useState<GuestBubble[]>([]);
+
+  React.useEffect(() => {
+    async function loadGuests() {
+      const firestoreGuests = await fetchGuests();
+      setDynamicGuests(firestoreGuests.map(g => ({ name: g.name, photo: GUEST_PHOTOS[g.name] })));
+    }
+    loadGuests();
+  }, []);
 
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    const defaultGuests: GuestBubble[] = guests.length > 0 ? guests : [
-      { name: 'Marisa', photo: GUEST_PHOTOS['Marisa'] },
-      { name: 'Cleide', photo: GUEST_PHOTOS['Cleide'] },
-      { name: 'Wesley', photo: GUEST_PHOTOS['Wesley'] },
-      { name: 'Luiza', photo: GUEST_PHOTOS['Luiza'] },
-      { name: 'Teté', photo: GUEST_PHOTOS['Teté'] },
-      { name: 'Geovana', photo: GUEST_PHOTOS['Geovana'] },
-      { name: 'Rose', photo: GUEST_PHOTOS['Rose'] },
-      { name: 'Lucas', photo: GUEST_PHOTOS['Lucas'] },
-      { name: 'Antony', photo: GUEST_PHOTOS['Antony'] },
-      { name: 'Papai', photo: GUEST_PHOTOS['Papai'] },
-      { name: 'Mamãe', photo: GUEST_PHOTOS['Mamãe'] },
-      { name: 'Sabrina', photo: GUEST_PHOTOS['Sabrina'] },
-      { name: 'Bruno', photo: GUEST_PHOTOS['Bruno'] },
-      { name: 'Terezinha', photo: GUEST_PHOTOS['Terezinha'] },
-      { name: 'Anselmo', photo: GUEST_PHOTOS['Anselmo'] },
-      { name: 'Andréia', photo: GUEST_PHOTOS['Andréia'] }
-    ];
+    const defaultGuests: GuestBubble[] = guests.length > 0 ? guests : dynamicGuests;
 
     // Criar engine e mundo
     const engine = Matter.Engine.create({
