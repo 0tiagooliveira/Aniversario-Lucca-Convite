@@ -70,7 +70,15 @@ export const GUEST_PHOTOS: Record<string, string> = {
   "Luiza": "/Luiza.png",
   "Terezinha": "/Teresinha.png",
   "Anselmo": "/Anselmo e Andréia.png",
-  "Andréia": "/Anselmo e Andréia.png"
+  "Andréia": "/Anselmo e Andréia.png",
+  "Edna": "/Edna.png",
+  "Ilson": "/Ilson.png",
+  "Matheus": "/Matheus.png",
+  "Elivelton": "/Elivelton.png",
+  "Leonardo": "/Leonardo.png",
+  "Gustavo": "/Gustavo.png",
+  "Beth": "/Beth.png",
+  "Gabrielly": "/Gabrielly.png"
 };
 
 export const SYSTEM_PROMPT = `Você é o Guia do Safari do Lucca! 🦒🦁🦓
