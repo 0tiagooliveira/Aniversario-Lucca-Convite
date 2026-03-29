@@ -84,6 +84,10 @@ export const GUEST_PHOTOS: Record<string, string> = {
   ,"Carlinhos": "/Carlinhos.jpeg"
   ,"Renato": "/Renato.jpeg"
   ,"João": "/João.png"
+  ,"Felipe": "/Felipe.png"
+  ,"Monique": "/Monique.png"
+  ,"Henrique": "/Henrique.png"
+  ,"Thais": "/Thais.png"
 };
 
 export const SYSTEM_PROMPT = `Você é o Guia do Safari do Lucca! 🦒🦁🦓
